@@ -1,10 +1,21 @@
 import './styles.css';
 import Die from './Die';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { nanoid } from 'nanoid';
+import Confetti from 'react-confetti';
 
 function App() {
   const [dice, setDice] = useState(createRandomArray());
+  const [tenzies, setTenzies] = useState(false);
+
+  useEffect(() => {
+    const allSelected = dice.every((die) => die.isHeld);
+    const firstValue = dice[0].value;
+    const allValuesMatch = dice.every((die) => die.value === firstValue);
+    if (allSelected && allValuesMatch) {
+      setTenzies(true);
+    }
+  }, [dice]);
 
   function dieGenerator() {
     return {
@@ -41,8 +52,8 @@ function App() {
   const mapDice = dice.map((die) => {
     return (
       <Die
-        key={die.id}
         hold={die.isHeld}
+        key={die.id}
         value={die.value}
         freeze={() => freezeNumber(die.id)}
       />
@@ -51,6 +62,7 @@ function App() {
 
   return (
     <main>
+      {tenzies && <Confetti numberOfPieces={1900} />}
       <section>
         <div className='main-section'>
           <h1>Tenzies</h1>
@@ -59,7 +71,7 @@ function App() {
             current value between rolls.
           </p>
           <div className='dice-section'>{mapDice}</div>
-          <button onClick={rollDice}>Roll</button>
+          <button onClick={rollDice}>{tenzies ? 'YOU WON!' : 'ROLL'}</button>
         </div>
       </section>
     </main>
